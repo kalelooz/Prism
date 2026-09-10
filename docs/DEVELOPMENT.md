@@ -1,6 +1,6 @@
 # Make yourself at home
 
-Prism is a Windows desktop app. The interface is plain HTML, CSS and JavaScript; Tauri and Rust handle the native window, files and background connection.
+Prism is a Windows desktop app. The interface is plain HTML, CSS and JavaScript; Tauri and Rust handle the native window, files and background connection. The native app runs without Electron or Node. Electron is used for isolated UI checks and the older host.
 
 ## One-time setup
 
