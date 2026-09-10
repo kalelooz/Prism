@@ -6,6 +6,10 @@ Prism includes a theme library, color editing, theme import/export, image fading
 
 This project is in preparation for a public beta. There is no signed public download here yet.
 
+## Support Prism
+
+[Buy Prism a coffee](https://buymeacoffee.com/prismcodex) to support development and compatibility updates. Tips are optional and do not unlock extra features.
+
 ## Background compatibility
 
 Image backgrounds use an experimental integration with a supported version of Codex. They require a separate Codex session with local debugging enabled. Prism explains the access involved and asks before enabling it. A Codex update can affect compatibility.
