@@ -1,0 +1,29 @@
+node_modules/
+dist*/
+artifacts/
+work/
+src-tauri/target/
+src-tauri/generated/
+src-tauri/gen/
+*.lnk
+
+# Local work and project records
+/plans/
+/publish/
+/CODEX_PROJECT.md
+/CONTEXT.md
+/PRO_PLAN.md
+/READABILITY.md
+/RELEASE_SETUP.md
+/VERIFICATION.md
+/prism-feasibility-*.md
+/.c2cignore
+
+# Credentials and signing material
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.key
+*.pem

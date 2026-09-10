@@ -9,12 +9,12 @@
 
 <p align="center">
   <a href="#the-look-is-yours">Explore the looks</a> ·
-  <a href="#how-it-works">How it works</a> ·
+  <a href="#build-it-yourself">Build it yourself</a> ·
   <a href="https://github.com/kalelooz/Prism/issues">Ideas &amp; feedback</a> ·
   <a href="https://buymeacoffee.com/prismcodex">Support Prism</a>
 </p>
 
-<p align="center"><strong>Windows · Public beta in preparation</strong><br><sub>No public download is available yet. Watch this repository for updates.</sub></p>
+<p align="center"><strong>Windows · Source available · Signed app coming later</strong><br><sub>You can build Prism today. A ready-made download is still in preparation.</sub></p>
 
 ![Prism's editor with a forest background across the sidebar and chat, independent fading controls, and a sample Codex workspace](docs/images/prism-forest.png)
 
@@ -29,11 +29,10 @@ A quiet forest. A little city light. A clean, plain sidebar. Start with a mood, 
   <img src="docs/images/prism-tokyo.png" width="49%" alt="Tokyo skyline in the sidebar, with a plain chat area">
 </p>
 
-| Make it personal | Keep it practical |
-|---|---|
-| **Choose your canvas.** Use an image in the chat, sidebar, or both. Right-panel and terminal backgrounds are optional. | **Adjust the fading.** Soften each selected area independently and preview the result before applying. |
-| **Choose the layout.** Span one image across areas, repeat it within each, or choose separate images. | **Keep your favorites.** Save background setups and return to them from local history. |
-| **Shape the palette.** Edit background, text, accent, panel contrast, fonts and code colors. | **Make it portable.** Copy a color theme into Codex's Appearance settings, or import and export themes in Prism. |
+- **Pick your panes.** Chat, sidebar, right panel, terminal—you choose.
+- **Set the mood.** Span one image, repeat it, or use a different image in each area. Fade it until your text feels comfortable.
+- **Keep your favorites.** Save background setups and swap between them.
+- **Play with color.** Edit, save, import and export themes, including fonts and code colors.
 
 ## Six starting points. Your finishing touches.
 
@@ -64,36 +63,32 @@ Image backgrounds are an **experimental integration**. They use a separate Codex
 - **Local access matters.** Other programs on your computer could use the debugging connection to read or control that session. Removing a background or quitting Prism does not close that connection; quit the configured Codex session to close it.
 - **You control closing.** If an ordinary Codex session is already open, Prism asks you to save your work and quit it normally. Prism never closes Codex for you.
 
-<details>
-<summary><strong>A few useful answers</strong></summary>
+## Build it yourself
 
-**Can I download Prism now?**
+Bring **Windows x64**, **Node.js 22.12+**, **Rust**, the **Microsoft C++ Build Tools** and **WebView2**. [One-time setup and build notes →](docs/DEVELOPMENT.md)
 
-Not yet. A public beta is in preparation. Release details will appear here when a download is ready.
+```powershell
+git clone https://github.com/kalelooz/Prism.git
+cd Prism
+npm ci
+npm run start:native
+```
 
-**Does it work on macOS or phones?**
+Want a portable build? Run `npm run package:native`, then open `Prism.exe` inside the new `dist-native/Prism-<version>-win32-x64` folder. Keep that folder together. Local builds are unsigned; Windows may warn or block them.
 
-The current app is for Windows. No other platform support is announced.
-
-**Does removing a background delete my saved setups?**
-
-No. Removal turns off restoration and keeps history. Your unsaved preview also stays in the editor.
-
-**Are these screenshots of my chats?**
-
-No. The images on this page use Prism's sample workspace content. They illustrate appearance choices, not a recorded live setup.
-
-**Does a tip unlock anything?**
-
-No. Tips are optional support for development and compatibility updates.
-
-</details>
+Prism uses **Tauri + Rust** with plain HTML, CSS and JavaScript. The native app ships without Electron or Node. Electron remains in the development tools for isolated UI checks and the older host.
 
 ## Help shape Prism
 
 Tell us which look you would use, what feels unclear, or what you would like next. [Share an idea or report a problem](https://github.com/kalelooz/Prism/issues). For a bug, include the Prism version, Codex version and visible error; leave out conversations, personal images and credentials.
 
-If you would like to support the work, [buy Prism a coffee](https://buymeacoffee.com/prismcodex).
+Small fixes, theme ideas and clear bug reports are welcome. [Development notes](docs/DEVELOPMENT.md) explain how to run the checks. Please discuss bigger changes in an issue first.
+
+If you would like to support the work, [buy Prism a coffee](https://buymeacoffee.com/prismcodex). Tips are optional. Every feature works without one.
+
+## Yours to tinker with
+
+Prism's original source code is [MIT licensed](LICENSE). Use it, change it, make something with it—just keep the license notice. [Third-party notices](THIRD_PARTY_NOTICES.txt) and [photo credits](docs/IMAGE-CREDITS.md) cover the assets and dependencies that keep their own terms.
 
 ---
 

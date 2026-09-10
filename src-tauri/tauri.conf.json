@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Prism",
+  "version": "0.14.8",
+  "identifier": "local.prism.codexthemes.native",
+  "build": {
+    "beforeDevCommand": "node native-assets.mjs",
+    "beforeBuildCommand": "node native-assets.mjs",
+    "frontendDist": "../dist-native-web"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-src 'none'",
+      "capabilities": [{ "identifier": "main-events", "windows": ["main"], "permissions": ["core:event:allow-listen", "core:event:allow-unlisten"] }]
+    }
+  },
+  "bundle": {
+    "active": false,
+    "icon": ["../icon.ico"],
+    "resources": { "../wallpaper-windows.ps1": "wallpaper-windows.ps1" }
+  }
+}

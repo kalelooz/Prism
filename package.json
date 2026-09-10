@@ -1,0 +1,27 @@
+{
+  "name": "prism-codex-themes",
+  "productName": "Prism",
+  "version": "0.14.8",
+  "private": true,
+  "description": "A Windows companion for Codex color themes and image backgrounds",
+  "author": "Mohamed",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/kalelooz/Prism.git" },
+  "homepage": "https://github.com/kalelooz/Prism#readme",
+  "bugs": { "url": "https://github.com/kalelooz/Prism/issues" },
+  "engines": { "node": ">=22.12.0" },
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "start:native": "node native-run.mjs dev",
+    "package:native": "node native-run.mjs build",
+    "preview": "node preview.cjs",
+    "test": "node --test theme.test.mjs wallpaper.test.mjs background-store.test.mjs wallpaper-client.test.mjs main.test.mjs frontend.test.mjs",
+    "package": "node package.mjs"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0",
+    "@tauri-apps/cli": "2.11.4",
+    "electron": "44.3.0"
+  }
+}

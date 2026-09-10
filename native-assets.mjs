@@ -1,0 +1,12 @@
+import { mkdir, readFile, writeFile, copyFile } from 'node:fs/promises';
+import { wallpaperExpression, PROBE_WALLPAPER, REMOVE_WALLPAPER } from './wallpaper.mjs';
+const out = new URL('./dist-native-web/', import.meta.url);
+await mkdir(new URL('assets/', out), { recursive: true });
+for (const file of ['app.mjs', 'theme.mjs', 'wallpaper.mjs', 'style.css', 'icon.svg', 'native-entry.mjs', 'assets/copy-import.gif', 'assets/copy-import-poster.png']) await copyFile(new URL(file, import.meta.url), new URL(file, out));
+await writeFile(new URL('index.html', out), (await readFile(new URL('index.html', import.meta.url), 'utf8')).replace(/<meta http-equiv="Content-Security-Policy"[^>]+>/, '').replace('src="app.mjs"', 'src="native-entry.mjs"'));
+const sample = wallpaperExpression({ image: 'data:image/png;base64,AA==', veil: .85 });
+const end = sample.lastIndexOf(')(');
+if (end < 0) throw Error('Wallpaper adapter cannot be embedded');
+await mkdir(new URL('./src-tauri/generated/', import.meta.url), { recursive: true });
+await writeFile(new URL('./src-tauri/generated/wallpaper.json', import.meta.url), JSON.stringify({ install: sample.slice(0, end + 1), probe: PROBE_WALLPAPER, remove: REMOVE_WALLPAPER }));
+console.log('Native web assets and fixed wallpaper adapter prepared.');

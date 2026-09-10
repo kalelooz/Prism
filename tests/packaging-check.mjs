@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { listPackage, extractFile } from '@electron/asar';
+
+// Run from the repository root after building the native and Electron packages.
+const version = JSON.parse(readFileSync('src-tauri/tauri.conf.json', 'utf8')).version;
+assert.equal(JSON.parse(readFileSync('package.json', 'utf8')).version, version);
+const native = `dist-native/Prism-${version}-win32-x64`;
+for (const file of ['wallpaper-windows.ps1', 'LICENSE', 'THIRD_PARTY_NOTICES.txt']) {
+  assert.deepEqual(readFileSync(`${native}/${file}`), readFileSync(file), `Native package: ${file}`);
+}
+assert.equal(readFileSync(`${native}/Prism.exe`).subarray(0, 2).toString(), 'MZ');
+assert.match(readFileSync(`${native}/Codex with Prism.cmd`, 'utf8'), /Prism\.exe" --background --open-codex/);
+
+const archive = 'dist-electron/Prism-win32-x64/resources/app.asar';
+const entries = listPackage(archive).map(name => name.replaceAll('\\', '/'));
+for (const file of ['main.cjs', 'preload.cjs', 'app.mjs', 'theme.mjs', 'wallpaper.mjs', 'wallpaper-client.cjs', 'wallpaper-windows.ps1', 'project-links.json', 'LICENSE', 'THIRD_PARTY_NOTICES.txt', 'assets/copy-import.gif']) {
+  assert(entries.includes(`/${file}`), `Electron package: ${file}`);
+}
+for (const file of ['LICENSE', 'THIRD_PARTY_NOTICES.txt']) assert.deepEqual(extractFile(archive, file), readFileSync(file));
+assert(!entries.some(name => /^\/(?:src-tauri|docs|tests|work|artifacts|plans|publish)(?:\/|$)/.test(name)));
+assert(!entries.some(name => /^\/(?:\.github(?:\/|$)|\.gitignore$|native-(?:assets|entry|run)\.mjs$)/.test(name)));
+assert(!entries.some(name => /(?:CODEX_PROJECT|CONTEXT|PRO_PLAN|RELEASE_SETUP|VERIFICATION)\.md$|(?:^|\/)\.env(?:\.[^/]*)?$|\.(?:pfx|p12|pem|key|lnk)$/i.test(name)));
+console.log('PASS: native and Electron packages contain their runtime inputs and licenses, without source-only or private files.');
