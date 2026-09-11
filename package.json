@@ -4,7 +4,7 @@
   "version": "0.14.11",
   "private": true,
   "description": "A Windows companion for Codex color themes and image backgrounds",
-  "author": "Mohamed",
+  "author": "kalelooz",
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/kalelooz/Prism.git" },
   "homepage": "https://github.com/kalelooz/Prism#readme",

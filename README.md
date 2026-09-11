@@ -89,4 +89,4 @@ Prism's original code uses the [MIT license](LICENSE). You can use it and change
 
 ---
 
-<p align="center"><sub>Made by <a href="https://github.com/kalelooz">Mohamed</a> · <a href="docs/IMAGE-CREDITS.md">Image credits</a><br>Prism is an independent project and is not affiliated with OpenAI. Codex is a product of OpenAI.</sub></p>
+<p align="center"><sub>Made by <a href="https://github.com/kalelooz">kalelooz</a> · <a href="docs/IMAGE-CREDITS.md">Image credits</a><br>Prism is an independent project and is not affiliated with OpenAI. Codex is a product of OpenAI.</sub></p>
