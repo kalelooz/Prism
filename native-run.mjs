@@ -7,6 +7,16 @@ if (!['dev', 'build'].includes(mode)) throw Error('Choose dev or build');
 const env = { ...process.env };
 const pathKey = Object.keys(env).find(key => key.toLowerCase() === 'path') || 'PATH';
 env[pathKey] = join(homedir(), '.cargo', 'bin') + ';' + (env[pathKey] || '');
+if (mode === 'build') {
+  // Keep local account and checkout paths out of distributed Rust diagnostics.
+  const encodedKey = Object.keys(env).find(key => key.toUpperCase() === 'CARGO_ENCODED_RUSTFLAGS') || 'CARGO_ENCODED_RUSTFLAGS';
+  const plainKey = Object.keys(env).find(key => key.toUpperCase() === 'RUSTFLAGS') || 'RUSTFLAGS';
+  const flags = env[encodedKey]?.split('\x1f') ?? (env[plainKey] || '').split(/\s+/);
+  env[encodedKey] = [...flags.filter(Boolean),
+    `--remap-path-prefix=${homedir()}=/build/home`,
+    `--remap-path-prefix=${process.cwd()}=/build/prism`,
+  ].join('\x1f');
+}
 const child = spawn(process.execPath, ['node_modules/@tauri-apps/cli/tauri.js', mode, ...(mode === 'build' ? ['--no-bundle'] : [])], { stdio: 'inherit', env });
 const code = await new Promise((resolve, reject) => { child.once('error', reject); child.once('exit', resolve); });
 if (code !== 0) { process.exitCode = code || 1; } else if (mode === 'build') {

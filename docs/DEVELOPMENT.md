@@ -27,6 +27,7 @@ Run these from the repository root:
 
 ```powershell
 npm test
+node tests/native-build-env.mjs
 node native-assets.mjs
 cargo test --locked --manifest-path src-tauri/Cargo.toml
 node windows-helper-build.mjs work/helper-check.exe tests/windows-helper-check.cs
@@ -41,11 +42,14 @@ The Node checks use temporary files and an isolated hidden Electron window. Norm
 
 ```powershell
 npm run package:native
+node tests/packaging-check.mjs --native-only
 ```
 
 Open `Prism.exe` in `dist-native/Prism-<version>-win32-x64`. Keep the bundled helper and notices alongside it. `Codex with Prism.cmd` opens the configured background session after setup.
 
 The native helper is `Prism.Windows.exe`. It uses Windows APIs directly and does not require PowerShell execution-policy changes. `native-notices.mjs` collects the resolved Cargo dependency licenses and the installed Rust toolchain's standard-library notices into the package. Install Rust's documentation component if those files are missing.
+
+Release builds remap local home and checkout paths in compiled Rust diagnostics. The native package check verifies that those local paths are absent and that the runtime helper and license notices are included.
 
 The build preserves any existing output folder. For another build of the same version, move the old folder aside first. When releasing a new version, keep `package.json`, `package-lock.json`, `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock` and `src-tauri/tauri.conf.json` in sync.
 

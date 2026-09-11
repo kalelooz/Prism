@@ -14,7 +14,10 @@
   <a href="https://buymeacoffee.com/prismcodex">Support Prism</a>
 </p>
 
-<p align="center"><strong>Windows · Free and open source</strong><br><sub>You can build Prism today. A ready-to-use download is still in preparation.</sub></p>
+<p align="center">
+  <a href="https://github.com/kalelooz/Prism/releases/download/v0.14.11/Prism-0.14.11-Windows-x64.zip"><img src="https://img.shields.io/badge/Download_for_Windows-x64_%C2%B7_v0.14.11-285A48?style=for-the-badge" alt="Download Prism for Windows x64"></a>
+</p>
+<p align="center"><strong>Free and open source · Portable beta</strong><br><sub>Download the ZIP, extract all files, then open Prism.exe. <a href="#download-and-run">Setup details</a></sub></p>
 
 ![A forest background across the sidebar and chat in Prism's sample Codex preview](docs/images/prism-forest.png)
 
@@ -59,6 +62,18 @@ Backgrounds are experimental. Prism uses a separate Codex profile with a debuggi
 - Your usual Codex shortcut can open a separate session with its own appearance. Use **Codex with Prism** for your background.
 - Other programs on your computer could use the debugging connection to read or control that Codex session. Removing the background or quitting Prism leaves the connection open. Quit that Codex session to close it.
 - If your usual Codex session is already open, Prism asks you to save your work and quit it normally. Prism never closes Codex for you.
+
+## Download and run
+
+**[Download Prism 0.14.11 for Windows x64](https://github.com/kalelooz/Prism/releases/download/v0.14.11/Prism-0.14.11-Windows-x64.zip)** · [Release notes](https://github.com/kalelooz/Prism/releases/tag/v0.14.11)
+
+1. Download the ZIP and choose **Extract All**.
+2. Keep the extracted folder together and open **Prism.exe**. No Node.js or Rust installation is needed.
+3. Choose a theme, or follow Prism's setup steps to enable backgrounds.
+
+Requires Windows 10 (build 19041 or later) or Windows 11 on x64, plus [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/). Windows 11 normally includes WebView2.
+
+This is an unsigned beta, so Windows may warn or block it. A signed Microsoft Store download is still pending. Backgrounds are experimental; read [Before using backgrounds](#before-using-backgrounds) above.
 
 ## Build it yourself
 
