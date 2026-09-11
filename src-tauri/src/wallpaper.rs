@@ -3,15 +3,15 @@ use serde_json::{json, Value};
 use std::{io::Read, net::{TcpStream, SocketAddr}, path::Path, process::{Command, Stdio}, sync::mpsc, time::{Duration, Instant}};
 use std::os::windows::process::CommandExt;
 
-fn powershell_path(path: &Path) -> Result<String> {
+fn helper_path(path: &Path) -> Result<String> {
     let path = path.to_str().ok_or("The Windows helper path is not valid Unicode.")?;
     Ok(if let Some(unc) = path.strip_prefix(r"\\?\UNC\") { format!(r"\\{unc}") } else { path.strip_prefix(r"\\?\").unwrap_or(path).to_owned() })
 }
 pub fn windows(script: &Path, action: &str) -> Result<Value> {
-    if !["Inspect", "Verify", "Launch", "Show", "Settings", "Fonts", "TaskManager"].contains(&action) { return Err("Unknown Windows operation.".into()); }
-    if crate::store::read_limited(script, 100 * 1024)?.as_slice() != include_bytes!("../../wallpaper-windows.ps1") { return Err("The Windows helper does not match this Prism build.".into()); }
-    let mut child = Command::new("powershell.exe").args(["-NoProfile", "-NonInteractive", "-File"]).arg(powershell_path(script)?).args(["-Action", action])
-        .env_remove("PSModulePath").creation_flags(0x08000000).stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::piped()).spawn().map_err(|e| e.to_string())?;
+    if !["Inspect", "Verify", "Launch", "Show", "Settings", "Fonts", "TaskManager", "Startup", "StartupEnable", "StartupDisable", "Storage"].contains(&action) { return Err("Unknown Windows operation.".into()); }
+    if crate::store::read_limited(script, 1024 * 1024)?.as_slice() != include_bytes!("../generated/Prism.Windows.exe") { return Err("The Windows helper does not match this Prism build.".into()); }
+    let mut child = Command::new(helper_path(script)?).arg(action)
+        .creation_flags(0x08000000).stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::piped()).spawn().map_err(|e| e.to_string())?;
     let stdout = child.stdout.take().ok_or("Windows helper output is unavailable")?;
     let stderr = child.stderr.take().ok_or("Windows helper errors are unavailable")?;
     let (error_send, error_receive) = mpsc::channel();
@@ -35,11 +35,11 @@ pub fn windows(script: &Path, action: &str) -> Result<Value> {
     Ok(value)
 }
 pub fn connection(script: &Path) -> Value {
-    let bytes = match crate::store::read_limited(script, 100 * 1024) {
+    let bytes = match crate::store::read_limited(script, 1024 * 1024) {
         Ok(bytes) => bytes,
         Err(detail) => return json!({"code":"helper-missing","detail":detail}),
     };
-    if bytes.as_slice() != include_bytes!("../../wallpaper-windows.ps1") { return json!({"code":"helper-mismatch","detail":"The Windows helper does not match this Prism build."}); }
+    if bytes.as_slice() != include_bytes!("../generated/Prism.Windows.exe") { return json!({"code":"helper-mismatch","detail":"The Windows helper does not match this Prism build."}); }
     match windows(script, "Inspect") {
         Ok(value) if value["code"].is_string() => value,
         Ok(_) => json!({"code":"helper-unavailable","detail":"The Windows helper returned no connection diagnosis."}),
@@ -104,7 +104,7 @@ pub fn operate(script: &Path, value: Option<&Value>) -> Result<Value> {
             Ok(_) => {}, Err(_) => failed += 1,
         }
     }
-    if eligible.is_empty() { return Err("Codex is still opening. Open a task or Settings and try Apply again.".into()); }
+    if eligible.is_empty() { return Err("Codex is still opening. Open a task or Settings and try Apply again. If it stays unavailable, this Codex layout needs a Prism update.".into()); }
     // ponytail: one preview follows the first available window; add a selector if per-window themes are needed.
     let appearance = &eligible[0].1["appearance"];
     let pending: Vec<_> = eligible.iter().filter(|(_, probe)| !(checked.is_some() && probe["profile"].as_str() == stamp.as_deref() && probe["installed"] == true && probe["appearance"] == probe["appliedAppearance"])).collect();
@@ -129,12 +129,18 @@ mod tests {
     use super::*;
     #[test]
     fn packaged_helper_accepts_canonical_windows_paths() {
-        assert_eq!(powershell_path(Path::new(r"\\?\C:\Prism\helper.ps1")).unwrap(), r"C:\Prism\helper.ps1");
-        assert_eq!(powershell_path(Path::new(r"\\?\UNC\server\share\helper.ps1")).unwrap(), r"\\server\share\helper.ps1");
-        let script = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../wallpaper-windows.ps1").canonicalize().unwrap();
+        assert_eq!(helper_path(Path::new(r"\\?\C:\Prism\Prism.Windows.exe")).unwrap(), r"C:\Prism\Prism.Windows.exe");
+        assert_eq!(helper_path(Path::new(r"\\?\UNC\server\share\Prism.Windows.exe")).unwrap(), r"\\server\share\Prism.Windows.exe");
+        let script = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("generated/Prism.Windows.exe").canonicalize().unwrap();
         assert!(script.to_str().unwrap().starts_with(r"\\?\"));
         let result = windows(&script, "Fonts").unwrap();
         assert!(!result["families"].as_array().unwrap().is_empty());
+        assert_eq!(windows(&script, "Storage").unwrap()["packaged"], false);
+        let temporary = tempfile::tempdir().unwrap();
+        let bad = temporary.path().join("Prism.Windows.exe");
+        std::fs::write(&bad, b"MZ-tampered").unwrap();
+        assert_eq!(connection(&bad)["code"], "helper-mismatch");
+        assert!(windows(&bad, "Fonts").unwrap_err().contains("does not match"));
     }
     #[test]
     #[ignore = "Explicit live check: reapplies the current saved Prism background to the verified Codex session"]
@@ -145,7 +151,7 @@ mod tests {
         let history = store.snapshot();
         assert_ne!(history["pendingRemoval"], true);
         let current = store.load(history["activeId"].as_str().expect("No current background to preserve")).unwrap();
-        let script = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../wallpaper-windows.ps1");
+        let script = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("generated/Prism.Windows.exe");
         let result = operate(&script, Some(&current)).unwrap();
         assert_eq!(result["installed"], true, "{result}");
         let unchanged = operate(&script, Some(&current)).unwrap();

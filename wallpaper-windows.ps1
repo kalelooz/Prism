@@ -56,7 +56,7 @@ if (!$prismPackages.Count) { $prismCode = 'codex-missing'; throw 'The official C
 if ($prismPackages.Count -ne 1 -or $prismPackages[0].PackageFamilyName -ne 'OpenAI.Codex_2p2nqsd0c76g0') { $prismCode = 'unsafe-install'; throw 'The installed official Codex package could not be identified.' }
 $prismPackage = $prismPackages[0]
 $prismVersion = [string]$prismPackage.Version
-if ($prismVersion -notin @('26.901.6511.0', '26.903.8094.0')) { $prismCode = 'codex-update'; throw "Codex $prismVersion needs a Prism compatibility update before wallpaper access." }
+# Keep the version for diagnosis; the shared wallpaper adapter checks the live layout before applying.
 $prismExecutable = Join-Path $prismPackage.InstallLocation 'app\ChatGPT.exe'
 if (!(Test-Path -LiteralPath $prismExecutable)) { $prismCode = 'codex-missing'; throw 'The installed official Codex executable could not be found.' }
 $prismSignature = Get-AuthenticodeSignature -LiteralPath $prismExecutable

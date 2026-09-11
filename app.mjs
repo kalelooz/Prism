@@ -284,7 +284,6 @@ function backgroundSettings() { return { mode: document.querySelector('input[nam
 function wallpaperStatus(message, error = false) { $('wallpaper-status').textContent = String(message || 'The background operation failed. Please try again.').replace(/^Error invoking remote method '[^']+': Error: /, '') + (startupWarning ? ` ${startupWarning}` : ''); $('wallpaper-status').classList.toggle('error', error); $('wallpaper-status').classList.toggle('success', wallpaperApplied && !error); }
 const connectionErrors = {
   'codex-missing':['Install Codex to use backgrounds','Install the official Codex app, then check again.'],
-  'codex-update':['Prism cannot connect to this Codex version','Update Prism for compatibility, then check again.'],
   'unsafe-install':['Prism cannot safely connect','This Codex installation could not be verified. Check the installation, then try again.'],
   'unsafe-session':['Prism cannot safely connect','This Codex session could not be verified. Close it yourself, reopen Codex through Prism, then check again.'],
   'port-in-use':['Prism cannot safely connect','Another app is using the required connection. Close that app yourself, then check again.'],
@@ -331,7 +330,7 @@ function renderConnection(connection) {
   else if (code === 'codex-open') { heading = 'Open Codex through Prism'; body = 'Choose an image and click Apply. Prism will guide you through one safe restart. It will never close Codex for you.'; state = 'waiting'; primaryText = 'Connect Codex'; }
   else if (code === 'codex-closed') { heading = saved ? 'Codex is closed' : 'Choose a background'; body = saved ? 'Click Open Codex. Your saved background will appear automatically.' : 'Choose an image and click Apply, or open Codex now.'; primaryText = 'Open Codex'; }
   else if (code === 'starting') { heading = 'Opening Codex…'; body = 'Keep Prism running while Codex opens.' + (saved ? ' Your saved background will apply automatically.' : ' Then choose an image and click Apply.'); state = 'waiting'; canCheck = true; }
-  else if (code === 'codex-loading') { heading = 'Finish opening Codex'; body = 'Wait for Codex to load. Sign in or open a task if asked; your saved background will apply automatically.'; state = 'waiting'; canCheck = true; }
+  else if (code === 'codex-loading') { heading = 'Waiting for the Codex layout'; body = 'Wait for Codex to load, then open a task or Settings. If this keeps waiting, its background layout may need a Prism update. Your saved background is kept.'; state = 'waiting'; canCheck = true; }
   else if (code === 'partial') { heading = 'Codex is still loading'; body = 'Open a task if asked, then check again. Your saved background will apply automatically.'; state = 'waiting'; canCheck = true; }
   else { [heading, body] = connectionErrors[code] || ['Prism could not connect', 'Check the connection again. If this keeps happening, open Details for more information.']; state = 'error'; canCheck = true; }
   panel.dataset.state = state; title.textContent = heading; description.replaceChildren();

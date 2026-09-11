@@ -98,7 +98,8 @@ ${chatEnabled ? `${scope} ${main} > header[class~="fixed"][class~="top-toolbar-s
 ${scope} ${main} [class*="_MainContentTopFade_"]${outsidePanels} { opacity:0!important; }
 ${scope} ${main} > header [data-app-shell-header-toolbar] > [class~="text-md"] { background:transparent!important; }
 ${scope} ${main} > header [data-app-shell-header-toolbar] > [class~="text-md"] button[class~="truncate"]:not(:hover):not(:focus-visible) { background:var(--color-token-main-surface-primary,rgb(${tint})); }
-${scope} ${main}:has(> header[class~="fixed"][class~="top-toolbar-sm"]) .thread-scroll-container${outsidePanels} { clip-path:inset(max(0px,calc(var(--thread-content-top-inset,0px) - var(--thread-sticky-header-top,0px))) 0 0); }` : ''}
+/* Clip the stationary viewport; clipping the scroller tears text during Chromium scrolling. */
+${scope} ${main}:has(> header[class~="fixed"][class~="top-toolbar-sm"]) :has(> .thread-scroll-container)${outsidePanels} { clip-path:inset(max(0px,calc(var(--thread-content-top-inset,0px) - var(--thread-sticky-header-top,calc(var(--spacing,4px) * 8)))) 0 0); }` : ''}
 ${clearText ? `${outlinedAreas} { text-shadow:-.65px 0 0 ${outlineColor},.65px 0 0 ${outlineColor},0 -.65px 0 ${outlineColor},0 .65px 0 ${outlineColor},-.45px -.45px 0 ${outlineColor},.45px -.45px 0 ${outlineColor},-.45px .45px 0 ${outlineColor},.45px .45px 0 ${outlineColor}; }
 ${chatEnabled && excludedPanels ? `${scope} :is(${excludedPanels}) { text-shadow:none; }` : ''}
 @media (forced-colors:active) { ${outlinedAreas} { text-shadow:none; } }` : ''}

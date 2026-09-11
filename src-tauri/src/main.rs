@@ -73,7 +73,7 @@ impl Host {
         Ok(checked)
     }
     fn history(&mut self) -> Result<Value> {
-        self.history_with_startup(startup(None))
+        self.history_with_startup(startup(&self.script, None))
     }
     fn history_with_startup(&mut self, startup: Result<bool>) -> Result<Value> {
         let state = self.store()?.snapshot();
@@ -270,7 +270,7 @@ impl Host {
                 let mut result = self.restore(app); result["history"] = self.history()?; Ok(result)
             },
             "start" => self.request_start(app, epoch),
-            "startup" => Ok(json!(startup(Some(args["value"].as_bool().ok_or("Invalid startup setting")?))?)),
+            "startup" => Ok(json!(startup(&self.script, Some(args["value"].as_bool().ok_or("Invalid startup setting")?))?)),
             _ => Err("Unknown Prism operation.".into())
         }
     }
@@ -281,9 +281,28 @@ impl Host {
         Ok(json!({"removalRequested":true,"history":self.history()?,"stateRevision":self.revision,"connection":{"code":"removing","autoStart":false,"saved":false,"stateRevision":self.revision},"message":"Automatic restoration is off. Removing the background when Codex is reachable."}))
     }
 }
-fn startup(change: Option<bool>) -> Result<bool> {
+fn is_packaged() -> Result<bool> {
+    #[link(name = "kernel32")]
+    extern "system" { fn GetCurrentPackageFullName(length: *mut u32, name: *mut u16) -> i32; }
+    let mut length = 0;
+    match unsafe { GetCurrentPackageFullName(&mut length, std::ptr::null_mut()) } {
+        15700 => Ok(false), // APPMODEL_ERROR_NO_PACKAGE
+        122 => Ok(true), // ERROR_INSUFFICIENT_BUFFER: the identity exists.
+        _ => Err("Windows package identity is unavailable.".into()),
+    }
+}
+fn native_context(packaged: bool) -> tauri::Context<tauri::Wry> {
+    let mut context = tauri::generate_context!();
+    if packaged { context.config_mut().identifier.push_str(".store"); }
+    context
+}
+fn startup(script: &std::path::Path, change: Option<bool>) -> Result<bool> {
     let root = RegKey::predef(HKEY_CURRENT_USER);
     if change.is_some() && cfg!(debug_assertions) { return Err("Use the packaged Prism app to change Windows startup.".into()); }
+    if is_packaged()? {
+        let action = match change { Some(true) => "StartupEnable", Some(false) => "StartupDisable", None => "Startup" };
+        return wallpaper::windows(script, action)?.as_bool().ok_or("Unexpected Windows startup state.".into());
+    }
     let path = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
     let key = match root.open_subkey_with_flags(path, if change.is_some() { KEY_READ | KEY_WRITE } else { KEY_READ }) {
         Ok(key) => key,
@@ -317,6 +336,15 @@ fn local_page(url: &url::Url) -> bool { (url.scheme() == "http" && url.host_str(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn store_and_portable_use_distinct_single_instance_contexts() {
+        let portable = native_context(false);
+        let store = native_context(true);
+        assert_eq!(portable.config().identifier, "local.prism.codexthemes.native");
+        assert_eq!(store.config().identifier, "local.prism.codexthemes.native.store");
+        assert_eq!(portable.config().product_name, store.config().product_name);
+        assert!(!is_packaged().unwrap());
+    }
     #[test]
     fn native_sender_clipboard_and_image_boundaries() {
         assert!(local_page(&url::Url::parse("http://tauri.localhost/index.html").unwrap()));
@@ -355,7 +383,7 @@ mod tests {
         host.advance_open(json!({"code":"ready"}), || panic!("Already connected"));
         assert!(host.opening_since.is_none());
         host.advance_open(json!({"code":"codex-closed"}), || panic!("Do not reopen after the user quits"));
-        for code in ["unsafe-session", "port-in-use", "codex-update", "helper-missing"] {
+        for code in ["unsafe-session", "port-in-use", "unsafe-install", "helper-missing"] {
             host.pending_start = true;
             host.advance_open(json!({"code":code}), || panic!("Unsafe launch"));
             assert!(!host.pending_start);
@@ -502,14 +530,19 @@ fn tray_action(app: &tauri::AppHandle, action: &'static str) {
     });
 }
 fn main() {
-    let result = tauri::Builder::default()
+    let result = (|| -> Result<()> {
+        let context = native_context(is_packaged()?);
+        tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, args, _| { if args.iter().any(|arg| arg == "--open-codex") { tray_action(app, "start"); } else { show(app); } }))
         .invoke_handler(tauri::generate_handler![prism])
         .setup(|app| {
-            let mut directory = PathBuf::from(std::env::var_os("APPDATA").ok_or("Windows application data is unavailable")?).join("PrismNative");
+            let script = if cfg!(debug_assertions) { PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("generated/Prism.Windows.exe") } else { app.path().resource_dir()?.join("Prism.Windows.exe") };
+            let storage = wallpaper::windows(&script, "Storage").map_err(std::io::Error::other)?;
+            let mut directory = if storage["packaged"] == true {
+                PathBuf::from(storage["directory"].as_str().ok_or("Windows package storage is unavailable")?)
+            } else { PathBuf::from(std::env::var_os("APPDATA").ok_or("Windows application data is unavailable")?).join("PrismNative") };
             #[cfg(debug_assertions)]
             if let Some(test) = std::env::var_os("PRISM_NATIVE_TEST_DATA") { directory = PathBuf::from(test); }
-            let script = if cfg!(debug_assertions) { PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../wallpaper-windows.ps1") } else { app.path().resource_dir()?.join("wallpaper-windows.ps1") };
             let state: Shared = Arc::new(Mutex::new(Host::new(directory.clone(), script)));
             app.manage(state.lock().unwrap().control.clone());
             app.manage(state.clone());
@@ -542,6 +575,7 @@ fn main() {
             Ok(())
         })
         .on_window_event(|window, event| { if let tauri::WindowEvent::CloseRequested { api, .. } = event { api.prevent_close(); let _ = window.hide(); } })
-        .run(tauri::generate_context!());
+        .run(context).map_err(|error| error.to_string())
+    })();
     if let Err(error) = result { rfd::MessageDialog::new().set_title("Prism could not start").set_description(error.to_string()).set_level(rfd::MessageLevel::Error).show(); }
 }

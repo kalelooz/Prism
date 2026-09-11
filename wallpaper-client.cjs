@@ -77,7 +77,7 @@ async function operate(options, { ensure = false } = {}) {
       if (probe?.shell || (checked === null && probe?.installed)) eligible.push({ socket, probe });
     } catch { failed++; }
   }
-  if (!eligible.length) throw new Error('Codex is still opening. Open a task or Settings and try Apply again.');
+  if (!eligible.length) throw new Error('Codex is still opening. Open a task or Settings and try Apply again. If it stays unavailable, this Codex layout needs a Prism update.');
   // ponytail: one preview follows the first available window; add a selector if per-window themes are needed.
   const appearance = eligible[0].probe.appearance;
   const pending = eligible.filter(({ probe }) => !(ensure && probe.profile === stamp && probe.installed && probe.appearance === probe.appliedAppearance));

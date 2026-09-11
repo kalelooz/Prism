@@ -55,7 +55,7 @@ Images and saved setups stay on your computer. The photographs shown here are ex
 
 Backgrounds are experimental. Prism uses a separate Codex profile with a debugging connection on your computer. This lets Prism add the background. It asks for permission first, and you may need to sign in to that profile.
 
-- Prism checks your Codex version. It currently supports `26.901.6511.0` and `26.903.8094.0` on Windows. A Codex update may need a Prism update too.
+- Prism checks the official Codex installation, its local connection and the background layout. Older and newer Codex builds can work without a Prism update; a changed version number alone does not block backgrounds. Changes to the connection or layout may still need a Prism update.
 - Your usual Codex shortcut can open a separate session with its own appearance. Use **Codex with Prism** for your background.
 - Other programs on your computer could use the debugging connection to read or control that Codex session. Removing the background or quitting Prism leaves the connection open. Quit that Codex session to close it.
 - If your usual Codex session is already open, Prism asks you to save your work and quit it normally. Prism never closes Codex for you.

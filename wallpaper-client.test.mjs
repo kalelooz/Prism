@@ -66,6 +66,12 @@ test('all verified app windows restore, settings need no composer, and theme cha
     assert.equal((await operate(options)).partial, true, 'a later failed mutation remains partial');
     failMutation.clear();
     assert.equal((await operate(null)).removed, true, 'later retry completes removal');
+    for (const state of windows.values()) state.shell = false;
+    const beforeLayoutCheck = installs;
+    await assert.rejects(operate(options), /this Codex layout needs a Prism update/);
+    assert.equal(installs, beforeLayoutCheck, 'an unrecognized layout must not receive wallpaper');
+    for (const state of windows.values()) state.shell = true;
+    assert.equal((await operate(options)).installed, true, 'a compatible layout can apply without a version update');
     rejectProfile = true;
     const before = sent;
     await assert.rejects(operate(options)); await assert.rejects(operate(options, { ensure: true })); await assert.rejects(operate(null));
@@ -115,11 +121,13 @@ test('Windows helper follows the installed package after an update and retains i
   for (const scenario of [
     { version: '26.903.8094.0' },
     { version: '26.901.6511.0' },
-    { version: '99.0.0.0', error: /compatibility update/ },
-    { version: '26.903.8094.0', family: 'OpenAI.Codex_impostor', error: /official Codex/ },
-    { version: '26.903.8094.0', signature: 'NotSigned', error: /signed OpenAI/ },
-    { version: '26.903.8094.0', owner: 'C:\\Other\\ChatGPT.exe', error: /expected official Codex/ },
-    { version: '26.903.8094.0', address: '0.0.0.0', error: /loopback/ }
+    { version: '26.903.9818.0' },
+    { version: '25.1.1.0' },
+    { version: '99.0.0.0' },
+    { version: '99.0.0.0', family: 'OpenAI.Codex_impostor', error: /official Codex/ },
+    { version: '99.0.0.0', signature: 'NotSigned', error: /signed OpenAI/ },
+    { version: '99.0.0.0', owner: 'C:\\Other\\ChatGPT.exe', error: /expected official Codex/ },
+    { version: '99.0.0.0', address: '0.0.0.0', error: /loopback/ }
   ]) {
     const location = `D:\\WindowsApps\\OpenAI.Codex_${scenario.version}_x64__2p2nqsd0c76g0`;
     const script = `
@@ -151,7 +159,7 @@ test('first-run diagnosis separates ordinary Codex, closed Codex, ready sessions
     { running: true, listener: true, otherOwner: true, code: 'port-in-use' },
     { running: true, listener: true, otherProfile: true, code: 'unsafe-session' },
     { running: false, missing: true, code: 'codex-missing' },
-    { running: false, version: '99.0.0.0', code: 'codex-update' }
+    { running: false, version: '99.0.0.0', code: 'codex-closed' }
   ]) {
     const script = `
 $expectedExecutable = 'D:\\WindowsApps\\OpenAI.Codex_26.903.8094.0_x64__2p2nqsd0c76g0\\app\\ChatGPT.exe'

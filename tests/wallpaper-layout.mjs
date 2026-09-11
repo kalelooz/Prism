@@ -4,15 +4,16 @@ import { wallpaperExpression, REMOVE_WALLPAPER } from '../wallpaper.mjs';
 export async function checkWallpaperLayout(window) {
   // The two observed Codex layouts put the scroller behind or below the fixed header.
   await window.loadURL('data:text/html,' + encodeURIComponent(`<style>
-    :root { --height-toolbar:46px; --app-shell-main-toolbar-height:0px; --frame-top:0px; --thread-content-top-inset:78px; --thread-sticky-header-top:32px; }
+    :root { --height-toolbar:46px; --app-shell-main-toolbar-height:0px; --frame-top:0px; --thread-content-top-inset:78px; --spacing:4px; }
     body { margin:0; color:rgb(240,240,240); }
     main { position:fixed; inset:36px 0 0 100px; background:#111; border-top-left-radius:12.5px; }
     aside { position:fixed; inset:36px auto 0 0; width:100px; }
     header { position:fixed; top:36px; left:100px; right:0; height:46px; pointer-events:none; }
     header button { background:#111; color:white; pointer-events:auto; }
     [data-app-shell-header-toolbar] > .text-md { background:#28201c; }
-    .thread-scroll-container { position:absolute; inset:var(--frame-top) 0 0; overflow:auto; }
-    .message { height:1000px; }
+    .chat-viewport { position:absolute; inset:var(--frame-top) 0 0; }
+    .thread-scroll-container { height:100%; overflow:auto; --thread-sticky-header-top:calc(var(--spacing) * 8); }
+    .message { height:1000px; flex-shrink:0; }
     .bg-surface,[data-codex-xterm] { background:#28201c; }
     [class*="--app-shell-panel-background"] { background:var(--app-shell-panel-background,#28201c); }
     .border-l { border-left:1px solid #665544; }
@@ -22,7 +23,7 @@ export async function checkWallpaperLayout(window) {
     #panel-chat,#panel-composer { position:static; height:0; background:#28201c; }
   </style><aside class="app-shell-left-panel"></aside><main class="main-surface">
   <header class="fixed top-toolbar-sm"><div data-app-shell-header-toolbar><div class="text-md"><button class="truncate" id="native-title">Task title</button></div></div><button id="other-title">Other</button></header>
-  <div class="thread-scroll-container"><div class="message">Scrollable message</div></div>
+  <div class="chat-viewport"><div class="thread-scroll-container"><div class="message">Scrollable message</div></div></div>
   <div id="top-fade" class="_MainContentTopFade_fixture" style="pointer-events:none;position:fixed;top:36px;height:16px;background:linear-gradient(#28201c,transparent)"></div>
   <div id="composer-fade" aria-hidden="true" class="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface" style="pointer-events:none;background-image:linear-gradient(to top,#28201c,#28201c,transparent)"></div>
   <div class="_ComposerLayoutRoot_fixture"><button id="send">Send</button></div>
@@ -34,11 +35,13 @@ export async function checkWallpaperLayout(window) {
   const image = 'data:image/png;base64,AA==';
   for (const mode of ['span', 'duplicate', 'separate', 'chat', 'sidebar']) {
     await window.webContents.executeJavaScript(wallpaperExpression({ image, sidebarImage:'data:image/png;base64,AQ==',rightImage:'data:image/png;base64,Ag==',terminalImage:'data:image/png;base64,Aw==',veil:.58,sidebarVeil:.73,rightVeil:.49,terminalVeil:.91,rightEnabled:true,terminalEnabled:true,mode }));
-    for (const inset of [0, 47]) {
+    for (const [inset,spacing,reverse] of [[0,4,false],[0,4,true],[0,6,true],[47,4,false]]) {
       const result = await window.webContents.executeJavaScript(`(() => {
         document.documentElement.style.setProperty('--frame-top','${inset}px');
-        document.documentElement.style.setProperty('--thread-content-top-inset','${inset ? 32 : 78}px');
-        const scroller=document.querySelector('.thread-scroll-container'); scroller.scrollTop=100;
+        document.documentElement.style.setProperty('--spacing','${spacing}px');
+        document.documentElement.style.setProperty('--thread-content-top-inset','${(inset ? 0 : 46) + spacing * 8}px');
+        const scroller=document.querySelector('.thread-scroll-container');
+        scroller.style.display='${reverse ? 'flex' : 'block'}'; scroller.style.flexDirection='column-reverse'; scroller.scrollTop=${reverse ? -100 : 100};
         return { header:getComputedStyle(document.querySelector('header')).backgroundColor,
            title:getComputedStyle(document.querySelector('#native-title')).backgroundColor,
            otherTitle:getComputedStyle(document.querySelector('#other-title')).backgroundColor,
@@ -50,7 +53,7 @@ export async function checkWallpaperLayout(window) {
           send:getComputedStyle(document.querySelector('#send')).opacity,
           clipped:document.elementFromPoint(400,60)?.className,
           message:document.elementFromPoint(400,100)?.className,
-          clip:getComputedStyle(scroller).clipPath };
+          scrollTop:scroller.scrollTop,clip:getComputedStyle(scroller).clipPath,viewportClip:getComputedStyle(scroller.parentElement).clipPath };
       })()`);
       assert.equal(result.header, 'rgba(0, 0, 0, 0)');
       assert.equal(result.title, mode === 'sidebar' ? 'rgb(17, 17, 17)' : 'rgb(15, 15, 20)');
@@ -62,6 +65,9 @@ export async function checkWallpaperLayout(window) {
       assert.match(result.gradient, /linear-gradient/, 'retain the native gradient shape');
       assert.equal(result.send, '1', 'do not fade the composer controls');
       assert.equal(result.message, 'message', 'content below the toolbar must stay visible and interactive');
+      assert.equal(result.scrollTop, reverse ? -100 : 100, 'normal and reversed chat layouts must still scroll');
+      assert.equal(result.clip, 'none', 'clip the stationary viewport instead of the moving scroll surface');
+      assert.equal(result.viewportClip, mode === 'sidebar' ? 'none' : inset ? 'inset(0px)' : 'inset(46px 0px 0px)', 'the viewport clips only the toolbar overlap, including when sticky spacing is defined on the child');
       if (mode !== 'sidebar') assert.notEqual(result.clipped, 'message', 'scrolling chat must not paint through the transparent header');
       else assert.equal(result.clip, 'none', 'sidebar-only must not change chat clipping');
     }
@@ -87,6 +93,7 @@ export async function checkWallpaperLayout(window) {
   }
   await window.webContents.executeJavaScript(REMOVE_WALLPAPER);
   assert.equal(await window.webContents.executeJavaScript(`getComputedStyle(document.querySelector('.thread-scroll-container')).clipPath`), 'none');
+  assert.equal(await window.webContents.executeJavaScript(`getComputedStyle(document.querySelector('.chat-viewport')).clipPath`), 'none');
   assert.equal(await window.webContents.executeJavaScript(`getComputedStyle(document.querySelector('#composer-fade')).opacity`), '1');
   assert.equal(await window.webContents.executeJavaScript(`getComputedStyle(document.querySelector('#terminal')).backgroundColor`), 'rgb(40, 32, 28)');
 

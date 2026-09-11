@@ -4,7 +4,7 @@ Prism is an independent Windows companion for Codex. It has no Prism account, ad
 
 Prism saves your themes, selected background images, history and settings on your computer. Imported images are copied into Prism's local storage so saved backgrounds remain available. Exporting a theme writes a file to the location you choose. Copy theme uses the Windows clipboard.
 
-Background access is optional. After you approve it, Prism can open a separate Codex profile and use a connection on your own computer to apply its background styling. Prism checks the official Codex installation, publisher signature, supported version and local connection before applying changes. It reads the appearance information needed for the preview; it does not request or transmit your conversation contents.
+Background access is optional. After you approve it, Prism can open a separate Codex profile and use a connection on your own computer to apply its background styling. Prism checks the official Codex installation, publisher signature, dedicated profile, local connection and compatible background layout before applying changes. It reads the appearance information needed for the preview; it does not request or transmit your conversation contents.
 
 Other programs on your computer could use that debugging connection to read or control the separate Codex session. Removing a background or quitting Prism does not close the connection; quit that Codex session to close it.
 

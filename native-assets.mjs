@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile, copyFile } from 'node:fs/promises';
 import { wallpaperExpression, PROBE_WALLPAPER, REMOVE_WALLPAPER } from './wallpaper.mjs';
+import './windows-helper-build.mjs';
 const out = new URL('./dist-native-web/', import.meta.url);
 await mkdir(new URL('assets/', out), { recursive: true });
 for (const file of ['app.mjs', 'theme.mjs', 'wallpaper.mjs', 'style.css', 'icon.svg', 'native-entry.mjs', 'assets/copy-import.gif', 'assets/copy-import-poster.png']) await copyFile(new URL(file, import.meta.url), new URL(file, out));

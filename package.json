@@ -1,7 +1,7 @@
 {
   "name": "prism-codex-themes",
   "productName": "Prism",
-  "version": "0.14.8",
+  "version": "0.14.11",
   "private": true,
   "description": "A Windows companion for Codex color themes and image backgrounds",
   "author": "Mohamed",
@@ -15,6 +15,7 @@
     "start": "electron .",
     "start:native": "node native-run.mjs dev",
     "package:native": "node native-run.mjs build",
+    "package:store": "node store-package.mjs",
     "preview": "node preview.cjs",
     "test": "node --test theme.test.mjs wallpaper.test.mjs background-store.test.mjs wallpaper-client.test.mjs main.test.mjs frontend.test.mjs",
     "package": "node package.mjs"
