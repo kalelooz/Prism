@@ -1,6 +1,6 @@
 [package]
 name = "prism-native"
-version = "0.14.11"
+version = "0.14.12"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/kalelooz/Prism"

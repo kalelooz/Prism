@@ -406,6 +406,7 @@ function previewWallpaper() {
   $('wallpaper-apply').disabled = $('wallpaper-save').disabled = !!wallpaperBusy || !window.prism || !backgroundStorageReady || !anySelected || !!missingImage;
   $('background-save-form').querySelector('[type=submit]').disabled = $('wallpaper-save').disabled;
   for (const id of ['choose-image', 'choose-sidebar-image', 'choose-right-image', 'choose-terminal-image']) $(id).disabled = !!wallpaperBusy || !backgroundStorageReady;
+  for (const button of document.querySelectorAll('.sample-background')) button.disabled = !!wallpaperBusy || !backgroundStorageReady;
   for (const input of document.querySelectorAll('input[name=layout],#clear-text')) input.disabled = !!wallpaperBusy || !backgroundStorageReady;
   for (const id of ['chat-enabled', 'sidebar-enabled', 'right-enabled', 'terminal-enabled']) $(id).disabled = !!wallpaperBusy || !backgroundStorageReady;
   for (const id of ['wallpaper-start', 'wallpaper-remove']) $(id).disabled = !!wallpaperBusy || !window.prism || !backgroundStorageReady;
@@ -428,6 +429,15 @@ function chooseWallpaper(result, area = choosingArea) {
   $('wallpaper-apply').disabled = !window.prism;
   previewWallpaper(); wallpaperStatus($('image-guidance').textContent);
 }
+for (const button of document.querySelectorAll('.sample-background')) button.addEventListener('click', () => runBackgroundOperation('sample', async () => {
+  const preview = button.querySelector('img');
+  await preview.decode();
+  const canvas = document.createElement('canvas');
+  canvas.width = preview.naturalWidth; canvas.height = preview.naturalHeight;
+  canvas.getContext('2d').drawImage(preview, 0, 0);
+  chooseWallpaper({ image: canvas.toDataURL('image/jpeg', .9), name: button.dataset.sampleName }, 'chat');
+  wallpaperStatus(`${button.dataset.sampleName} selected. Adjust fading, then Apply.`);
+}));
 for (const [id, area] of [['choose-image','chat'], ['choose-sidebar-image','sidebar'], ['choose-right-image','right'], ['choose-terminal-image','terminal']]) $(id).addEventListener('click', () => {
   if (window.prism) return runBackgroundOperation('choose', async () => chooseWallpaper(await window.prism.chooseImage(area), area));
   choosingArea = area;

@@ -1,10 +1,18 @@
 Prism's original source code is covered by the LICENSE file.
 Third-party code, photographs, logos and interface imagery retain their own rights.
 
-Preview photographs
-The documentation's product previews contain photographs under the Pexels license.
-See docs/IMAGE-CREDITS.md for the photographers, original sources and license link.
-The photos are not relicensed under Prism's MIT license.
+Photographs
+Prism includes two resized sample backgrounds under the Pexels license:
+- Beach sample by Septimiu Lupea:
+  https://www.pexels.com/photo/aerial-view-of-tranquil-empty-beach-with-clear-water-32737203/
+- Forest sample by Candra Sasmito:
+  https://www.pexels.com/photo/green-trees-covered-with-fog-10142292/
+
+The documentation's other product previews also contain photographs under the
+Pexels license. See docs/IMAGE-CREDITS.md for their creators and original sources.
+Pexels license: https://www.pexels.com/license/
+The photographs are not relicensed under Prism's MIT license. Their use does not
+imply endorsement by Pexels or the photographers.
 
 Codex interface and marks
 The instructional GIF and poster in assets/ show Codex interface elements to

@@ -33,6 +33,11 @@ try {
   assert($('terminal-veil').value === '63', 'manual terminal fading should stop linked updates');
   await waitFor(() => $('background-history-list').children.length === 4, 'background history did not load four visible entries');
   assert(!$('wallpaper-apply').disabled && $('background-startup').indeterminate && $('wallpaper-status').textContent.includes('Fixture startup registry denied'), 'unreadable startup status must warn without blocking saved background use');
+  const samples = [...document.querySelectorAll('.sample-background')];
+  assert(samples.length === 2 && samples.every(button => !button.disabled && button.querySelector('img').alt === ''), 'two decorative included backgrounds must be ready after storage loads');
+  samples[0].click();
+  await waitFor(() => $('image-name').textContent === 'Beach sample' && !$('image-thumbnail').hidden, 'included beach background was not selected');
+  assert($('image-thumbnail').src.startsWith('data:image/jpeg') && $('wallpaper-status').textContent.includes('Adjust fading, then Apply'), 'included background must become a local editable draft');
   window.__fixture.setFailStartup(true); $('background-startup').click();
   await waitFor(() => !$('background-startup').disabled, 'failed startup toggle did not finish');
   assert($('background-startup').indeterminate && $('background-startup').title.includes('Fixture startup registry denied'), 'failed startup toggle must preserve the unknown state and explanation');

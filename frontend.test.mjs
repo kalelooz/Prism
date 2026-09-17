@@ -36,7 +36,7 @@ test('frontend smoke', async () => {
         clearInterval(poll); clearTimeout(timer);
         resolveResult({ code: closed?.code ?? 0, marker });
       }, 25);
-      const timer = setTimeout(() => { clearInterval(poll); child.kill(); reject(new Error(`frontend smoke timed out\n${output}`)); }, 20_000);
+      const timer = setTimeout(() => { clearInterval(poll); child.kill(); reject(new Error(`frontend smoke timed out\n${output}`)); }, 30_000);
       child.once('error', error => { clearTimeout(timer); reject(error); });
       child.once('close', (code, signal) => { closed = { code, signal }; if (code !== 0 && !existsSync(resultFile)) { clearInterval(poll); clearTimeout(timer); resolveResult({ code, signal }); } });
     });

@@ -2,12 +2,13 @@
   <img src="docs/images/prism.svg" width="64" height="64" alt="Prism logo">
 </p>
 
-<h1 align="center">Prism</h1>
+<h1 align="center">Prism for Codex</h1>
 
 <p align="center"><strong>Make Codex feel like your space.</strong></p>
 <p align="center">Choose your colors and add your own background images.<br>For the Codex desktop app on Windows.</p>
 
 <p align="center">
+  <a href="docs/media/prism-beach-teaser.mp4">Watch the 18-second preview</a> ·
   <a href="#the-look-is-yours">Explore the looks</a> ·
   <a href="#build-it-yourself">Build it yourself</a> ·
   <a href="https://github.com/kalelooz/Prism/issues">Ideas &amp; feedback</a> ·
@@ -15,11 +16,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/kalelooz/Prism/releases/download/v0.14.11/Prism-0.14.11-Windows-x64.zip"><img src="https://img.shields.io/badge/Download_for_Windows-x64_%C2%B7_v0.14.11-285A48?style=for-the-badge" alt="Download Prism for Windows x64"></a>
+  <a href="https://github.com/kalelooz/Prism/releases/download/v0.14.12/Prism-0.14.12-Windows-x64.zip"><img src="https://img.shields.io/badge/Download_for_Windows-x64_%C2%B7_v0.14.12-285A48?style=for-the-badge" alt="Download Prism for Windows x64"></a>
 </p>
 <p align="center"><strong>Free and open source · Portable beta</strong><br><sub>Download the ZIP, extract all files, then open Prism.exe. <a href="#download-and-run">Setup details</a></sub></p>
 
 ![A forest background across the sidebar and chat in Prism's sample Codex preview](docs/images/prism-forest.png)
+
+<p align="center"><strong><a href="docs/media/prism-beach-teaser.mp4">Watch Prism turn Codex into a calmer beach workspace</a></strong><br><sub>18 seconds · natural wave ambience · no music</sub></p>
 
 <p align="center"><sub>Forest photo by Candra Sasmito / Pexels. <a href="docs/IMAGE-CREDITS.md">Photo credits</a>.<br>These images show Prism's sample previews. Click an image to see it at full size.</sub></p>
 
@@ -52,7 +55,7 @@ For colors, choose a theme, make your edits and click **Copy theme**. In Codex, 
 
 For backgrounds, choose an image from your computer, adjust it and click **Apply**. Follow the setup steps in Prism. It saves your choices before connecting. Next time, use **Codex with Prism** to open Codex with your background.
 
-Images and saved setups stay on your computer. The photographs shown here are examples, not a bundled wallpaper collection.
+Prism includes Beach and Forest samples so you can test backgrounds immediately, or choose your own PNG, JPG or WebP. Your images and saved setups stay on your computer.
 
 ### Before using backgrounds
 
@@ -65,7 +68,7 @@ Backgrounds are experimental. Prism uses a separate Codex profile with a debuggi
 
 ## Download and run
 
-**[Download Prism 0.14.11 for Windows x64](https://github.com/kalelooz/Prism/releases/download/v0.14.11/Prism-0.14.11-Windows-x64.zip)** · [Release notes](https://github.com/kalelooz/Prism/releases/tag/v0.14.11)
+**[Download Prism 0.14.12 for Windows x64](https://github.com/kalelooz/Prism/releases/download/v0.14.12/Prism-0.14.12-Windows-x64.zip)** · [Release notes](https://github.com/kalelooz/Prism/releases/tag/v0.14.12)
 
 1. Download the ZIP and choose **Extract All**.
 2. Keep the extracted folder together and open **Prism.exe**. No Node.js or Rust installation is needed.

@@ -85,7 +85,7 @@ function serve(req, res) {
   if (name.startsWith('assets/')) {
     const asset = path.resolve(root, name);
     if (!asset.startsWith(path.join(root, 'assets') + path.sep) || !fs.existsSync(asset)) return send(res, 404, 'text/plain', 'Not found');
-    return send(res, 200, name.endsWith('.gif') ? 'image/gif' : 'image/png', fs.readFileSync(asset));
+    return send(res, 200, name.endsWith('.gif') ? 'image/gif' : name.endsWith('.jpg') ? 'image/jpeg' : 'image/png', fs.readFileSync(asset));
   }
   if (!new Set(['app.mjs', 'theme.mjs', 'wallpaper.mjs', 'style.css', 'icon.svg']).has(name)) return send(res, 404, 'text/plain', 'Not found');
   const type = name.endsWith('.css') ? 'text/css' : name.endsWith('.svg') ? 'image/svg+xml' : 'text/javascript';

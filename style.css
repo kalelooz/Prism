@@ -69,6 +69,10 @@ body[data-studio=themes] .studio-nav::before { transform: translateX(100%); }
 .image-picker strong { display: block; font-size: 11px; line-height: 1.25; font-weight: 500; }
 .image-picker span span { display: block; font-size: 10px; color: var(--muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%; }
 .picker-action { font-size: 20px; color: var(--accent); }
+.sample-backgrounds { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; flex-shrink: 0; }
+.sample-background { display: flex; align-items: center; gap: 7px; min-width: 0; min-height: 34px; padding: 4px 7px; text-align: left; font-size: 10px; }
+.sample-background img { width: 26px; height: 24px; flex: none; border-radius: 4px; object-fit: cover; }
+.sample-background span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 fieldset { border: 0; padding: 0; margin: 12px 0 0; min-width: 0; flex-shrink: 0; }
 legend { padding: 0; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
 .layout-choices { display: flex; flex-wrap: wrap; gap: 4px; }

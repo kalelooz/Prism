@@ -538,11 +538,11 @@ fn main() {
         .setup(|app| {
             let script = if cfg!(debug_assertions) { PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("generated/Prism.Windows.exe") } else { app.path().resource_dir()?.join("Prism.Windows.exe") };
             let storage = wallpaper::windows(&script, "Storage").map_err(std::io::Error::other)?;
-            let mut directory = if storage["packaged"] == true {
+            let directory = if storage["packaged"] == true {
                 PathBuf::from(storage["directory"].as_str().ok_or("Windows package storage is unavailable")?)
             } else { PathBuf::from(std::env::var_os("APPDATA").ok_or("Windows application data is unavailable")?).join("PrismNative") };
             #[cfg(debug_assertions)]
-            if let Some(test) = std::env::var_os("PRISM_NATIVE_TEST_DATA") { directory = PathBuf::from(test); }
+            let directory = std::env::var_os("PRISM_NATIVE_TEST_DATA").map(PathBuf::from).unwrap_or(directory);
             let state: Shared = Arc::new(Mutex::new(Host::new(directory.clone(), script)));
             app.manage(state.lock().unwrap().control.clone());
             app.manage(state.clone());
